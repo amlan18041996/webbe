@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Models\Event;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -101,7 +102,24 @@ class EventsController extends BaseController
      */
 
     public function getEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 1');
+        $workshops = DB::table('events')
+            ->join('workshops', 'events.id', '=', 'workshops.event_id')
+            ->get();
+        $events = DB::table('events')->get();
+        $events_with_workshops = [];
+        foreach ($events as $event_key => $event_value) {
+            $event_value->workshops = [];
+            foreach ($workshops as $workshop_key => $workshop_value) {
+                if ($workshop_value->event_id === $event_value->id) {
+                    array_push($event_value->workshops, $workshop_value);
+                }
+            }
+            array_push(
+                $events_with_workshops, 
+                $event_value
+            );
+        }
+        return $events_with_workshops;
     }
 
 
